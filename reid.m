@@ -1,15 +1,37 @@
 %Neelabhro Roy
 %IIIT-Delhi
+
 clear;
 clc;
 close all;
 
-X9 = imread('VIPeR/cam_a/000_45.bmp');
-imshow(X9);
-figure;
+%x1 = imread('VIPeR/cam_a/000_45.bmp');
+%imshow(x1);
+%figure;
 
-X8 = imread('VIPeR/cam_b/000_45.bmp');
-imshow(X8);
+%x2 = imread('VIPeR/cam_b/000_45.bmp');
+%imshow(x2);
+
+images = zeros(128,48,3,316,'uint8');
+camA = dir(['VIPeR/cam_a/*.bmp']);
+camB = dir(['VIPeR/cam_b/*.bmp']);
+
+for i = 1:5
+    if ~camA(i).isdir && strcmp(camA(i).name(end-2:end), 'bmp')
+        images(:,:,:,i) = imread(['VIPeR/cam_a/' camA(i).name]);
+        imshow(images(:,:,:,i));
+        figure;
+    end
+end 
+
+for i = 1:5
+    if ~camB(i).isdir && strcmp(camB(i).name(end-2:end), 'bmp')
+        images(:,:,:,i) = imread(['VIPeR/cam_b/' camB(i).name]);
+        imshow(images(:,:,:,i));
+        figure;
+    end
+end 
+X1 = images;
 
 for m=1:2
   probe{m} = imread(sprintf('VIPeR/cam_a/%03d_45.bmp',m));
@@ -60,3 +82,7 @@ V2 = inv(((transpose(U) * U) + ( beta * transpose(A) * A) + (nu + Lv) .* eye(k))
 P1 = (V1 * transpose(X1)) * inv((X1 * transpose(X1)) + (Lp/nu)*eye(k));
 P2 = (V2 * transpose(X2)) * inv((X2 * transpose(X2)) + (Lp/nu)*eye(k));
 A  = (V1 * transpose(V2)) * inv((V2 * transpose(V2)) + (La/beta)*eye(k));
+
+%v1 = P1.*x1;
+%v2 = P2.*x2;
+%D  = abs((v1 - A*v2)^2);
