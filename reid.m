@@ -8,10 +8,21 @@ close all;
 %x1 = imread('VIPeR/cam_a/000_45.bmp');
 %imshow(x1);
 %figure;
-
 %x2 = imread('VIPeR/cam_b/000_45.bmp');
 %imshow(x2);
 
+numClass = 632;
+numFolds = 10;
+numRanks = 100;
+
+%For loading the extracted LOMO features
+load('/viper_lomo.mat', 'descriptors');
+%Gallery Features
+galFea = descriptors(1 : numClass, :);
+
+%Probe Features
+probFea = descriptors(numClass + 1 : end, :);
+clear descriptors
 images = zeros(128,48,3,316,'uint8');
 camA = dir(['VIPeR/cam_a/*.bmp']);
 camB = dir(['VIPeR/cam_b/*.bmp']);
@@ -19,19 +30,19 @@ camB = dir(['VIPeR/cam_b/*.bmp']);
 for i = 1:5
     if ~camA(i).isdir && strcmp(camA(i).name(end-2:end), 'bmp')
         images(:,:,:,i) = imread(['VIPeR/cam_a/' camA(i).name]);
-        imshow(images(:,:,:,i));
-        figure;
+        %imshow(images(:,:,:,i));
+        %figure;
     end
 end 
 
 for i = 1:5
     if ~camB(i).isdir && strcmp(camB(i).name(end-2:end), 'bmp')
         images(:,:,:,i) = imread(['VIPeR/cam_b/' camB(i).name]);
-        imshow(images(:,:,:,i));
-        figure;
+        %imshow(images(:,:,:,i));
+        %figure;
     end
 end 
-X1 = images;
+%X1 = images;
 
 for m=1:2
   probe{m} = imread(sprintf('VIPeR/cam_a/%03d_45.bmp',m));
@@ -52,7 +63,7 @@ beta = 1;
 d = 100;
 k = 100;
 
-n = length(probe);
+n = length(galFea);
 
 % n is the size of the sample set
 % d is the feature dimension equal to 100
