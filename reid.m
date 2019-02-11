@@ -60,10 +60,14 @@ Lp = 0.2;
 nu = 1;
 beta = 1;
 
-d = 100;
-k = 100;
+d = length(probFea);
+k = d;
 
-n = length(galFea);
+X1 = transpose(probFea);
+X2 = transpose(galFea);
+%X1 = probFea;
+%X2 = galFea;
+n = 632;
 
 % n is the size of the sample set
 % d is the feature dimension equal to 100
@@ -74,8 +78,8 @@ n = length(galFea);
 % V1 and V2 (kxn) indicate the semantic representation of X1 and X2
 
 % X(dxn) = U(dxk)*V(kxn)
-X1 = randi([0, 1], [d,n]);
-X2 = randi([0, 1], [d,n]);
+%X1 = randi([0, 1], [d,n]);
+%X2 = randi([0, 1], [d,n]);
 
 U  = randi([0, 1], [d,k]);
 V1 = randi([0, 1], [k,n]);
