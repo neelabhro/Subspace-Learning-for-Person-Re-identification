@@ -18,10 +18,12 @@ numRanks = 100;
 %For loading the extracted LOMO features
 load('/viper_lomo.mat', 'descriptors');
 %Gallery Features
-galFea = descriptors(1 : numClass, :);
+galFea = descriptors(1 : numClass, 1:100);
+%galFea = descriptors(1 : numClass,:);
 
 %Probe Features
-probFea = descriptors(numClass + 1 : end, :);
+%probFea = descriptors(numClass + 1 : end, :);
+probFea = descriptors(numClass + 1 : end, 1:100);
 clear descriptors
 images = zeros(128,48,3,316,'uint8');
 camA = dir(['VIPeR/cam_a/*.bmp']);
@@ -60,7 +62,7 @@ Lp = 0.2;
 nu = 1;
 beta = 1;
 
-d = length(probFea);
+d = 100;
 k = d;
 
 X1 = transpose(probFea);
