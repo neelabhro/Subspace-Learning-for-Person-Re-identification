@@ -8,22 +8,23 @@ close all;
 %x1 = imread('VIPeR/cam_a/000_45.bmp');
 %imshow(x1);
 %figure;
-%x2 = imread('VIPeR/cam_b/000_45.bmp');
+%x2 = imread('VIPeR/cam_b/000_45.bmp');  
 %imshow(x2);
 
-numClass = 632;
+numClass = 316;
 numFolds = 10;
 numRanks = 100;
 
 %For loading the extracted LOMO features
 load('/viper_lomo.mat', 'descriptors');
 %Gallery Features
-galFea = descriptors(1 : numClass, 1:100);
-%galFea = descriptors(1 : numClass,:);
-
+%galFea = descriptors(1 : numClass, 1:100);
+galFea = descriptors(1 : numClass,:);
+galFea = transpose(galFea);
 %Probe Features
-%probFea = descriptors(numClass + 1 : end, :);
-probFea = descriptors(numClass + 1 : end, 1:100);
+probeFea = descriptors(numClass*2 + 1 : numClass*3, :);
+probeFea = transpose(probeFea);
+%probFea = descriptors(numClass + 1 : end, 1:100);
 clear descriptors
 images = zeros(128,48,3,316,'uint8');
 camA = dir(['VIPeR/cam_a/*.bmp']);
@@ -46,14 +47,6 @@ for i = 1:5
 end 
 %X1 = images;
 
-for m=1:2
-  probe{m} = imread(sprintf('VIPeR/cam_a/%03d_45.bmp',m));
-end
-
-for m=1:2
-  gallery{m} = imread(sprintf('VIPeR/cam_b/%03d_90.bmp',m));
-end
-
 Lu = 0.05;
 Lv = 0.2;
 La = 0.2;
@@ -62,14 +55,23 @@ Lp = 0.2;
 nu = 1;
 beta = 1;
 
-d = 100;
+%probeFeaT = transpose(probeFea);
+probe_PCA = pca(probeFea);
+%for m=1:216
+%    probe_PCA = pca(transpose(probe_PCA));
+    %probe_PCA = pca(transpose(probFea));
+%end
+
+gal_PCA = pca(galFea);
+d = length(probe_PCA);
+%d = 100;
 k = d;
 
-X1 = transpose(probFea);
-X2 = transpose(galFea);
-%X1 = probFea;
-%X2 = galFea;
-n = 632;
+%X1 = transpose(probFea);
+%X2 = transpose(galFea);
+X1 = probe_PCA;
+X2 = gal_PCA;
+n = 316;
 
 % n is the size of the sample set
 % d is the feature dimension equal to 100
