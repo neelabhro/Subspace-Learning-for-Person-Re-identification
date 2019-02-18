@@ -62,6 +62,7 @@ for m=1:216
 end
 probe_PCA = transpose(probe_PCA);
 
+x1 = probe_PCA(:,1);
 
 gal_PCA = pca(galFea);
 for m=1:216
@@ -69,6 +70,8 @@ for m=1:216
 end
 gal_PCA = transpose(gal_PCA);
 %d = length(probe_PCA);
+
+x2 = gal_PCA(:,1);
 d = 100;
 k = d;
 
@@ -107,6 +110,6 @@ P1 = (V1 * transpose(X1)) * inv((X1 * transpose(X1)) + (Lp/nu)*eye(k));
 P2 = (V2 * transpose(X2)) * inv((X2 * transpose(X2)) + (Lp/nu)*eye(k));
 A  = (V1 * transpose(V2)) * inv((V2 * transpose(V2)) + (La/beta)*eye(k));
 
-%v1 = P1.*x1;
-%v2 = P2.*x2;
-%D  = abs((v1 - A*v2)^2);
+v1 = P1*x1;
+v2 = P2*x2;
+D  = abs((v1 - A*v2).^2);
