@@ -55,16 +55,25 @@ Lp = 0.2;
 nu = 1;
 beta = 1;
 
+probe_PCA = matlabPCA(probeFea,10000);
 %probeFeaT = transpose(probeFea);
-probe_PCA = pca(probeFea);
+%probe_PCA = pca(probeFea);
 %for m=1:216
 %    probe_PCA = pca(transpose(probe_PCA));
-    %probe_PCA = pca(transpose(probFea));
 %end
+%probe_PCA = transpose(probe_PCA);
 
-gal_PCA = pca(galFea);
-d = length(probe_PCA);
-%d = 100;
+%x1 = probe_PCA(:,1);
+gal_PCA = matlabPCA(galFea,10000);
+%gal_PCA = pca(galFea);
+%for m=1:216
+%    gal_PCA = pca(transpose(gal_PCA));
+%end
+%gal_PCA = transpose(gal_PCA);
+%d = length(probe_PCA);
+
+%x2 = gal_PCA(:,1);
+d = 100;
 k = d;
 
 %X1 = transpose(probFea);
@@ -102,6 +111,7 @@ P1 = (V1 * transpose(X1)) * inv((X1 * transpose(X1)) + (Lp/nu)*eye(k));
 P2 = (V2 * transpose(X2)) * inv((X2 * transpose(X2)) + (Lp/nu)*eye(k));
 A  = (V1 * transpose(V2)) * inv((V2 * transpose(V2)) + (La/beta)*eye(k));
 
-%v1 = P1.*x1;
-%v2 = P2.*x2;
-%D  = abs((v1 - A*v2)^2);
+
+%v1 = P1*x1;
+%v2 = P2*x2;
+%D  = abs((v1 - A*v2).^2);
