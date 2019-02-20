@@ -55,32 +55,32 @@ Lp = 0.2;
 nu = 1;
 beta = 1;
 
-probe_PCA = matlabPCA(probeFea,10000);
+n = 316;
+d = 316;
+k = d;
+
 %probeFeaT = transpose(probeFea);
-%probe_PCA = pca(probeFea);
+probe_PCA = pca(probeFea);
 %for m=1:216
 %    probe_PCA = pca(transpose(probe_PCA));
 %end
 %probe_PCA = transpose(probe_PCA);
 
-%x1 = probe_PCA(:,1);
-gal_PCA = matlabPCA(galFea,10000);
-%gal_PCA = pca(galFea);
+%x1 = zeros(d,n);
+%for m = 1:n
+%    x1(:,m) = probe_PCA(:,m);
+%end  
+
+gal_PCA = pca(galFea);
 %for m=1:216
 %    gal_PCA = pca(transpose(gal_PCA));
 %end
 %gal_PCA = transpose(gal_PCA);
 %d = length(probe_PCA);
-
-%x2 = gal_PCA(:,1);
-d = 100;
-k = d;
-
 %X1 = transpose(probFea);
 %X2 = transpose(galFea);
 X1 = probe_PCA;
 X2 = gal_PCA;
-n = 316;
 
 % n is the size of the sample set
 % d is the feature dimension equal to 100
@@ -111,7 +111,10 @@ P1 = (V1 * transpose(X1)) * inv((X1 * transpose(X1)) + (Lp/nu)*eye(k));
 P2 = (V2 * transpose(X2)) * inv((X2 * transpose(X2)) + (Lp/nu)*eye(k));
 A  = (V1 * transpose(V2)) * inv((V2 * transpose(V2)) + (La/beta)*eye(k));
 
-
-%v1 = P1*x1;
-%v2 = P2*x2;
-%D  = abs((v1 - A*v2).^2);
+D = zeros(n);
+for m = 1:n
+    v1 = P1*X1(:,m);
+    v2 = P2*X2(:,m);
+    D(m) = sqrt(sum((v1 - A*v2).^2));
+end
+D = D(:,1);
