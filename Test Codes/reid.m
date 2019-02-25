@@ -110,12 +110,18 @@ U  = (( X1 * transpose(V1)) + ( X2 * transpose(V2))) .* inv((( V1 * transpose(V1
 V1 = inv(((transpose(U) * U) + (nu + beta + Lv) * eye(k))) * ((transpose(U) * X1) + (beta* A * V2) + nu * P1 * X1);
 V2 = inv(((transpose(U) * U) + ( beta * transpose(A) * A) + (nu + Lv) .* eye(k))) * ((transpose(U) * X2) + (beta* transpose(A) * V1) + nu * P2 * X2);
 P1 = (V1 * transpose(X1)) * inv((X1 * transpose(X1)) + (Lp/nu)*eye(k));
-P1 = P1 ./ max(norm(P1));
+%P1 = P1 ./ max(norm(P1));
 P2 = (V2 * transpose(X2)) * inv((X2 * transpose(X2)) + (Lp/nu)*eye(k));
 A  = (V1 * transpose(V2)) * inv((V2 * transpose(V2)) + (La/beta)*eye(k));
 
 D = zeros(n,n);
-
+%m = 1:1:632;
+%x1 = X1(:,m);
+%for m = 1:n
+%    v1 = P1*X1(:,m);
+%    v2 = P2*X2(m,:);
+%    D(m) = norm((v1 - A*v2).^2);
+%end
 for m = 1:n
     v1 = P1*X1(:,m);
     for i = 1:n
