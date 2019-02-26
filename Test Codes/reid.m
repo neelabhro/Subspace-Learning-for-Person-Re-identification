@@ -180,11 +180,12 @@ for nf = 1 : numFolds
     fprintf('%5.2f%%, %5.2f%%, %5.2f%%, %5.2f%%, %5.2f%%\n\n', cms(nf,[1,5,10,15,20]) * 100);
 end
 
-meanCms = mean(cms);
+meanCms = mean(cms)*100;
 plot(1 : numRanks, meanCms);
 title('CMC Curve');
 xlabel('Rank');
 ylabel('Performance');
+axis([0 100 0 100])
 
 fprintf('The average performance:\n');
 fprintf(' Rank1,  Rank5, Rank10, Rank15, Rank20\n');
