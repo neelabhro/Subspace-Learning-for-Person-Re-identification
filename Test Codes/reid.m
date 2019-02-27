@@ -22,12 +22,14 @@ load('/viper_lomo.mat', 'descriptors');
 %galFea = descriptors(1 : numClass,:);
 galFea = descriptors(1 : numClass, :);
 probeFea = descriptors(numClass + 1 : end, :);
-galFea = transpose(galFea);
+%galFea = transpose(galFea);
 %Probe Features
 %probeFea = descriptors(numClass*2 + 1 : numClass*3, :);
-probeFea = transpose(probeFea);
+%probeFea = transpose(probeFea);
 %probFea = descriptors(numClass + 1 : end, 1:100);
 %clear descriptors
+galFea1 = galFea(1:numClass/2, : );
+probFea1 = probeFea(1:numClass/2, : );
 images = zeros(128,48,3,316,'uint8');
 camA = dir(['VIPeR/cam_a/*.bmp']);
 camB = dir(['VIPeR/cam_b/*.bmp']);
@@ -57,12 +59,12 @@ Lp = 0.2;
 nu = 1;
 beta = 1;
 
-n = 632;
-d = 632;
+n = 316;
+d = 316;
 k = d;
 
 %probeFeaT = transpose(probeFea);
-probe_PCA = pca(probeFea);
+probe_PCA = pca(probFea1');
 %for m=1:216
 %    probe_PCA = pca(transpose(probe_PCA));
 %end
@@ -73,7 +75,7 @@ probe_PCA = pca(probeFea);
 %    x1(:,m) = probe_PCA(:,m);
 %end  
 
-gal_PCA = pca(galFea);
+gal_PCA = pca(galFea1');
 %for m=1:216
 %    gal_PCA = pca(transpose(gal_PCA));
 %end
