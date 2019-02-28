@@ -22,12 +22,18 @@ load('/viper_lomo.mat', 'descriptors');
 %galFea = descriptors(1 : numClass,:);
 galFea = descriptors(1 : numClass, :);
 probeFea = descriptors(numClass + 1 : end, :);
-galFea = transpose(galFea);
+%galFea = transpose(galFea);
 %Probe Features
 %probeFea = descriptors(numClass*2 + 1 : numClass*3, :);
-probeFea = transpose(probeFea);
+%probeFea = transpose(probeFea);
 %probFea = descriptors(numClass + 1 : end, 1:100);
 %clear descriptors
+galFea1 = galFea(1:numClass/2, : );
+probFea1 = probeFea(1:numClass/2, : );
+
+galFea2 = galFea(numClass/2+1 : end, : );
+probFea2 = probeFea(numClass/2+1 : end, : );
+
 images = zeros(128,48,3,316,'uint8');
 camA = dir(['VIPeR/cam_a/*.bmp']);
 camB = dir(['VIPeR/cam_b/*.bmp']);
@@ -57,12 +63,13 @@ Lp = 0.2;
 nu = 1;
 beta = 1;
 
-n = 632;
-d = 632;
+n = 316;
+d = 316;
 k = d;
 
 %probeFeaT = transpose(probeFea);
-probe_PCA = pca(probeFea);
+probe_PCA1 = pca(probFea2');
+X12 = pca(probFea1');
 %for m=1:216
 %    probe_PCA = pca(transpose(probe_PCA));
 %end
@@ -73,7 +80,8 @@ probe_PCA = pca(probeFea);
 %    x1(:,m) = probe_PCA(:,m);
 %end  
 
-gal_PCA = pca(galFea);
+gal_PCA2 = pca(galFea2');
+X22 = pca(galFea1');
 %for m=1:216
 %    gal_PCA = pca(transpose(gal_PCA));
 %end
@@ -81,8 +89,8 @@ gal_PCA = pca(galFea);
 %d = length(probe_PCA);
 %X1 = transpose(probFea);
 %X2 = transpose(galFea);
-X1 = probe_PCA;
-X2 = gal_PCA;
+X1 = probe_PCA1;
+X2 = gal_PCA2;
 
 % n is the size of the sample set
 % d is the feature dimension equal to 100
@@ -110,14 +118,24 @@ U  = (( X1 * transpose(V1)) + ( X2 * transpose(V2))) .* inv((( V1 * transpose(V1
 V1 = inv(((transpose(U) * U) + (nu + beta + Lv) * eye(k))) * ((transpose(U) * X1) + (beta* A * V2) + nu * P1 * X1);
 V2 = inv(((transpose(U) * U) + ( beta * transpose(A) * A) + (nu + Lv) .* eye(k))) * ((transpose(U) * X2) + (beta* transpose(A) * V1) + nu * P2 * X2);
 P1 = (V1 * transpose(X1)) * inv((X1 * transpose(X1)) + (Lp/nu)*eye(k));
+%P1 = P1 ./ max(norm(P1));
 P2 = (V2 * transpose(X2)) * inv((X2 * transpose(X2)) + (Lp/nu)*eye(k));
 A  = (V1 * transpose(V2)) * inv((V2 * transpose(V2)) + (La/beta)*eye(k));
 
-D = zeros(n);
+D = zeros(n,n);
+%m = 1:1:632;
+%x1 = X1(:,m);
+%for m = 1:n
+%    v1 = P1*X1(:,m);
+%    v2 = P2*X2(m,:);
+%    D(m) = norm((v1 - A*v2).^2);
+%end
 for m = 1:n
-    v1 = P1*X1(:,m);
-    v2 = P2*X2(:,m);
-    D(m) = norm(((v1 - A*v2).^2));
+    v1 = P1*X12(:,m);
+    for i = 1:n
+        v2 = P2*X22(:,i);
+        D(m,i) = norm(((v1 - A*v2).^2));
+    end
 end
 %D = D(:,1);
 
@@ -170,9 +188,12 @@ for nf = 1 : numFolds
     fprintf('%5.2f%%, %5.2f%%, %5.2f%%, %5.2f%%, %5.2f%%\n\n', cms(nf,[1,5,10,15,20]) * 100);
 end
 
-meanCms = mean(cms);
+meanCms = mean(cms)*100;
 plot(1 : numRanks, meanCms);
 title('CMC Curve');
+xlabel('Rank');
+ylabel('Performance');
+axis([0 100 0 100])
 
 fprintf('The average performance:\n');
 fprintf(' Rank1,  Rank5, Rank10, Rank15, Rank20\n');
