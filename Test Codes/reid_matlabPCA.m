@@ -6,6 +6,7 @@ clc;
 close all;
 
 feaFile = '/viper_lomo.mat';
+%pcaFile = '/matlabPCA100.mat';
 
 numClass = 632;
 numFolds = 10;
@@ -49,14 +50,17 @@ clear descriptors
     TestSet(317: end,:) = probeFea2;
     
     [X , W] = matlabPCA(TrainSet',100);
-    X1 = X(:, 1:316);
-    X2 = X(:, 317:end);
+    %load(pcaFile, 'X');
+    %load(pcaFile, 'W');
+    
+    X2 = X(:, 1:316);
+    X1 = X(:, 317:end);
     %X1 = pca(probeFea1');
     %X2 = pca(galFea1');
     
     TestPCA = W' * TestSet';
-    X12 = TestPCA(:, 1:316);
-    X22 = TestPCA(:, 317:end);
+    X22 = TestPCA(:, 1:316);
+    X12 = TestPCA(:, 317:end);
 
     
     
@@ -86,7 +90,7 @@ clear descriptors
 
 
 %% Main algorithm
-    for i = 1:10
+    for i = 1:500
         U  = (( X1 * transpose(V1)) + ( X2 * transpose(V2))) .* inv((( V1 * transpose(V1)) + ( V2 * transpose(V2)) + (Lu*eye(k))));
         V1 = inv(((transpose(U) * U) + (nu + beta + Lv) * eye(k))) * ((transpose(U) * X1) + (beta* A * V2) + nu * P1 * X1);
         V2 = inv(((transpose(U) * U) + ( beta * transpose(A) * A) + (nu + Lv) .* eye(k))) * ((transpose(U) * X2) + (beta* transpose(A) * V1) + nu * P2 * X2);
