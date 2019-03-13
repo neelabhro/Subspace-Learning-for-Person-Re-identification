@@ -1,5 +1,5 @@
 % consider an artificial data set of 100 variables (e.g., genes) and 10 samples
-function [pc]= matlabPCA(data,p)
+function [pc , W]= matlabPCA(data,p)
 % n = 700; % NUMBER OF DATA POINTS IN EACH CLASS
 % N = 5; % DIMENSIONALITY OF DATA (MUST BE 2 FOR DISPLAY TO WORK)
 % 
