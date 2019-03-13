@@ -1,6 +1,5 @@
 # Subspace-Learning-for-Person-Re-identification
-Dataset used: VIPeR 
 
 
-### Algorithm: LOMO + Subspace Learning:
+### Algorithm: LOMO + Subspace Learning ( Dataset used: VIPeR )
 ![](viper.png)
