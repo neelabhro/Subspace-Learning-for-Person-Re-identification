@@ -26,7 +26,7 @@ clear descriptors
     beta = 1;
 
     n = 316;
-    d = 632;
+    d = 100;
     k = d;
 
     p = randperm(numClass);
@@ -48,7 +48,7 @@ clear descriptors
     TestSet(1:316 ,:) = galFea2;
     TestSet(317: end,:) = probeFea2;
     
-    [X , W] = matlabPCA(TrainSet',632);
+    [X , W] = matlabPCA(TrainSet',100);
     X1 = X(:, 1:316);
     X2 = X(:, 317:end);
     %X1 = pca(probeFea1');
@@ -107,3 +107,5 @@ clear descriptors
         end
         
     end
+    
+    CMC(D,100);
