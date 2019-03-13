@@ -13,7 +13,7 @@ for i = 1:limit
     acc(i) = 100*mean(rank<=i);
 end
 
-bar(1:limit, acc);
+plot(1:limit, acc);
 xlabel('Rank')
 ylabel('Accuracy')
 title('CMC curve')
