@@ -26,7 +26,7 @@ clear descriptors
     beta = 1;
 
     n = 316;
-    d = 316;
+    d = 632;
     k = d;
 
     p = randperm(numClass);
