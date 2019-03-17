@@ -5,8 +5,8 @@ clear;
 clc;
 close all;
 
-feaFile = '/viper_lomo.mat';
-pcaFile = '/matlabPCA100.mat';
+feaFile = 'viper_lomo.mat';
+pcaFile = 'matlabPCA100.mat';
 
 numClass = 632;
 numFolds = 10;
