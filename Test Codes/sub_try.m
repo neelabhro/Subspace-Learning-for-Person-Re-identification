@@ -28,7 +28,7 @@ clear descriptors
     beta = 1;
 
     n = 316;
-    d = 15;
+    d = 100;
     k = d;
 
     p = randperm(numClass);
@@ -54,14 +54,18 @@ clear descriptors
     load(pcaFile, 'X');
     load(pcaFile, 'W');
     
-    X2 = X(1:15, 1:316);
-    X1 = X(1:15, 317:end);
+    %X2 = X(1:15, 1:316);
+    %X1 = X(1:15, 317:end);
+    X2 = X(:, 1:316);
+    X1 = X(:, 317:end);
     %X1 = pca(probeFea1');
     %X2 = pca(galFea1');
     
     TestPCA = W' * TestSet';
-    X22 = TestPCA(1:15, 1:316);
-    X12 = TestPCA(1:15, 317:end);
+    %X22 = TestPCA(1:15, 1:316);
+    %X12 = TestPCA(1:15, 317:end);
+    X22 = TestPCA(:, 1:316);
+    X12 = TestPCA(:, 317:end);
 
     
     
@@ -97,8 +101,9 @@ clear descriptors
 
 
 %% Main algorithm
-    for i = 1:50
+    for i = 1:500
         U  = (( W1'*X1 * transpose(V1)) + ( W2'*X2 * transpose(V2))) .* inv((( V1 * transpose(V1)) + ( V2 * transpose(V2)) + (Lu*eye(k))));
+%        U  = (( W1'*X1 * transpose(V1)) + ( W2'*X2 * transpose(V2))) / ((( V1 * transpose(V1)) + ( V2 * transpose(V2)) + (Lu*eye(k))));
         V1 = ((transpose(U) * U) + (nu + beta + Lv) * eye(k)) \ ((transpose(U) * W1'*X1) + (beta* A * V2) + nu * P1 *W1'* X1);
         V2 = ((transpose(U) * U) + ( beta * transpose(A) * A) + (nu + Lv) .* eye(k)) \ ((transpose(U) *W2'* X2) + (beta* transpose(A) * V1) + nu * P2 * W2'*X2);
         P1 = (V1 * transpose(W1'*X1)) / ((W1'*X1 * transpose(W1'*X1)) + (Lp/nu)*eye(k));
@@ -110,7 +115,7 @@ clear descriptors
         C1 = (X1*V1'*W1 + nu*X1*V1'*P1)/(eye(k) + nu*P1'*P1);
         [Ua1,da1] = eig(A1);
         [Vb1,db1] = eig(B1);
-        C1t = ((Ua1 +eye(k)*0)\C1)*Ua1;
+        C1t = ((Ua1 +eye(k)*0)\C1)*Vb1;
         
         for p = 1:d
         
@@ -130,7 +135,7 @@ clear descriptors
         C2 = (X2*V2'*W2 + nu*X2*V2'*P2)/(eye(k) + nu*P2'*P2);
         [Ua2,da2] = eig(A2);
         [Vb2,db2] = eig(B2);
-        C2t = ((Ua2 +eye(k)*0)\C2)*Ua2;
+        C2t = ((Ua2 +eye(k)*0)\C2)*Vb2;
         
         for p = 1:d
         
@@ -150,10 +155,10 @@ clear descriptors
     D = zeros(n,n);
     for m = 1:n
     
-        v1 = P1*(W1'*X12(:,m));
+        v1 = P1*(W1'*X1(:,m));
     
         for i = 1:n
-            v2 = P2*(W2'*X22(:,i));
+            v2 = P2*(W2'*X2(:,i));
             D(m,i) = norm(((v1 - A*v2)));
         end
         
