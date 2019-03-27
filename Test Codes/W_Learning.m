@@ -1,3 +1,4 @@
+% Same W learned for Probe and Gallery set, distance on test set
 %Neelabhro Roy
 %IIIT-Delhi
 
@@ -6,7 +7,7 @@ clc;
 close all;
 
 feaFile = 'viper_lomo.mat';
-pcaFile = 'matlabPCA100.mat';
+pcaFile = 'matlabPCA316.mat';
 
 numClass = 632;
 numFolds = 10;
@@ -29,7 +30,7 @@ clear descriptors
     beta = 1;
 
     n = 316;
-    d = 100;
+    d = 316;
     k = d;
 
     p = randperm(numClass);
@@ -81,7 +82,7 @@ clear descriptors
     % X(dxn) = U(dxk)*V(kxn)
     %X1 = randi([0, 1], [d,n]);
     %X2 = randi([0, 1], [d,n]);
-
+for i = 1:10
     U  = randi([0, 1], [d,k]);
     V1 = randi([0, 1], [k,n]);
     V2 = randi([0, 1], [k,n]);
@@ -89,6 +90,8 @@ clear descriptors
     P1 = randi([0, 1], [k,d]);
     P2 = randi([0, 1], [k,d]);
     W2 = randi([0, 1], [d,k]);
+    %V12 = randi([0, 1], [k,n]);
+    %V22 = randi([0, 1], [k,n]);
 
 
     
@@ -103,8 +106,10 @@ clear descriptors
         W2 = (X1*V1'*U' + X2*V2'*U')*(inv(X1*X1' + X2*X2' - Lw*eye(k)));
         
         for j = 1:k
-            W2(j,:) = W2(j,:)./norm(W2(j,:));
-        end    
+            W2(:,j) = W2(:,j)./norm(W2(:,j));
+        end
+        
+
         %W2 = W1';
         %for j = 1:50
         %    Vw = 2*W'*X1*X1' - 2*(X1*V1')*U' + 2*W'*X2*X2' - 2*(X2*V2')*U' - 2*nu*X1*V1'*P1' - 2*nu*X2*V2'*P2' + 2*nu*P1'*P1*W'*X1*X1' + 2*nu*P2'*P2*W'*X2*X2' + 2*Lw*W';
@@ -114,21 +119,28 @@ clear descriptors
         %end 
         %W=W+.01*eye(100);
     end
+        V12 = inv(((transpose(U) * U) + (nu + beta + Lv) * eye(k))) * ((transpose(U) *W2* X12) + (beta* A * V2) + nu * P1 * W2*X12);
+        %for i = 1:10
+        V22 = inv(((transpose(U) * U) + ( beta * transpose(A) * A) + (nu + Lv) .* eye(k))) * ((transpose(U) *W2* X22) + (beta* transpose(A) * V12) + nu * P2*W2 * X22);    
+        V12 = inv(((transpose(U) * U) + (nu + beta + Lv) * eye(k))) * ((transpose(U) *W2* X12) + (beta* A * V22) + nu * P1 * W2*X12);
+        %end    
+        V22 = inv(((transpose(U) * U) + ( beta * transpose(A) * A) + (nu + Lv) .* eye(k))) * ((transpose(U) *W2* X22) + (beta* transpose(A) * V12) + nu * P2*W2 * X22);    
 
-    
-    D = zeros(n,n);
+        D = zeros(n,n);
     for m = 1:n
     
         %v1 = P1*(X12(:,m));
         %v1 = (W2*X1(:,m));
-        v1 = V1(:,m);
+        v1 = V12(:,m);
         for i = 1:n
             %v2 = P2*(X22(:,i));
             %v2 = (W2*X2(:,i));
-            v2 = V2(:,i);
+            v2 = V22(:,i);
             D(m,i) = norm(((v1 -A* v2)));
         end
-        
+
     end
-    
     CMC(D,100);
+    hold on;
+end
+ 
