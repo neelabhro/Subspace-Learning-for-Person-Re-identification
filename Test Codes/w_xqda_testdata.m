@@ -7,7 +7,7 @@ close all;
 
 feaFile = 'viper_lomo.mat';
 pcaFile = 'matlabPCA100.mat';
-wFile = 'PCA_W_XQDA.mat';
+wFile = 'W_XQDA_100x100.mat';
 
 numClass = 632;
 numFolds = 10;
@@ -63,6 +63,7 @@ clear descriptors
     %X2 = pca(galFea1');
     
     TestPCA = W' * TestSet';
+    %TestPCA = W' * TestSet';
     %X22 = TestPCA(1:15, 1:316);
     %X12 = TestPCA(1:15, 317:end);
     X22 = TestPCA(:, 1:316);
@@ -92,99 +93,102 @@ clear descriptors
     % X(dxn) = U(dxk)*V(kxn)
     %X1 = randi([0, 1], [d,n]);
     %X2 = randi([0, 1], [d,n]);
-    load(wFile, 'W');
-    W = W(:,1:100);
+    load(wFile, 'W_XQDA');
+    %W = W(:,1:100);
     U  = randi([0, 1], [d,k]);
     V1 = randi([0, 1], [k,n]);
     V2 = randi([0, 1], [k,n]);
-    A  = randi([0, 1], [k,k]);
-    P1 = randi([0, 1], [k,d]);
-    P2 = randi([0, 1], [k,d]);
+    A  = randi([0, 1], [k,d]);
+    %P1 = randi([0, 1], [k,d]);
+    
+    P1 = eye(k,d);
+    P2 = eye(k,d);
+    %P2 = randi([0, 1], [k,d]);
     W1 = randi([0,1], [d,k]);
     %W1 = eye(k);
-    W1 = W;
+    W1 = W_XQDA;
     W2 = randi([0,1], [d,k]);
     %W2 = eye(k);
-    W2 = W;
-    W1t = randi([0,1], [d,k]);
-    W2t = randi([0,1], [d,k]);
+    W2 = W_XQDA;
+    %W1t = randi([0,1], [d,k]);
+    %W2t = randi([0,1], [d,k]);
     
 
 %[V,D] = eig(A) returns diagonal matrix D of eigenvalues and matrix V whose columns are the corresponding right eigenvectors, so that A*V = V*D
 
 
 %% Main algorithm
-    for i = 1:500
+    for i = 1:1000
 %        U  = (( W1'*X1 * transpose(V1)) + ( W2'*X2 * transpose(V2))) .* inv((( V1 * transpose(V1)) + ( V2 * transpose(V2)) + (Lu*eye(k))));
         U  = (( W1'*X1 * transpose(V1)) + ( W2'*X2 * transpose(V2))) / ((( V1 * transpose(V1)) + ( V2 * transpose(V2)) + (Lu*eye(k))));
-        V1 = ((transpose(U) * U) + (nu + beta + Lv) * eye(k)) \ ((transpose(U) * W1'*X1) + (beta* A * V2) + nu * P1 *W1'* X1);
+        V1 = ((transpose(U) * U) + (nu + beta + Lv) * eye(d)) \ ((transpose(U) * W1'*X1) + (beta* A * V2) + nu * P1 *W1'* X1 );
         V2 = ((transpose(U) * U) + ( beta * transpose(A) * A) + (nu + Lv) .* eye(k)) \ ((transpose(U) *W2'* X2) + (beta* transpose(A) * V1) + nu * P2 * W2'*X2);
-        P1 = (V1 * transpose(W1'*X1)) / ((W1'*X1 * transpose(W1'*X1)) + (Lp/nu)*eye(k));
-        P2 = (V2 * transpose(W2'*X2)) / ((W2'*X2 * transpose(W2'*X2)) + (Lp/nu)*eye(k));
+        %P1 = (V1 * transpose(W1'*X1)) / ((W1'*X1 * transpose(W1'*X1)) + (Lp/nu)*eye(k));
+        %P2 = (V2 * transpose(W2'*X2)) / ((W2'*X2 * transpose(W2'*X2)) + (Lp/nu)*eye(k));
         A  = (V1 * transpose(V2)) / ((V2 * transpose(V2)) + (La/beta)*eye(k));
         
         %A1 = X1*X1';
         %B1 = -Lw *inv(eye(k) + nu*P1'*P1);
         %C1 = (X1*V1'*W1 + nu*X1*V1'*P1)/(eye(k) + nu*P1'*P1);
                 
-        A1 = X1*X1';
-        B1 = -Lw *inv(2*eye(k) + nu*P1'*P1);
-        C1 = (X1*V1'*W1 + nu*X1*V1'*P1 + X1*X2'*W2)/(2*eye(k) + nu*P1'*P1)+0.0001*eye(k);
+%         A1 = X1*X1';
+%         B1 = -Lw *inv(2*eye(k) + nu*P1'*P1);
+%         C1 = (X1*V1'*W1 + nu*X1*V1'*P1 + X1*X2'*W2)/(2*eye(k) + nu*P1'*P1)+0.0001*eye(k);
+%         
+%         [Ua1,da1] = eig(A1);
+%         [Vb1,db1] = eig(B1);
+%         C1t = ((Ua1 +eye(k)*0)\C1)*Vb1;
         
-        [Ua1,da1] = eig(A1);
-        [Vb1,db1] = eig(B1);
-        C1t = ((Ua1 +eye(k)*0)\C1)*Vb1;
-        
-        for p = 1:d
-        
-            for q = 1:d
-                W1t(p,q) = C1t(p,q) / ( da1(p,p) + db1(q,q) );
-            end
-            
-        end
-        %W1 = eye(k);
-        W1 = W;
-        %W1 = (Ua1*W1t) / (Vb1);
-        for j = 1:k
-            W1(j,:) = W1(j,:)./(norm(W1(j,:))+eps);
-        end
-        W1 = W;
-        %W1 = eye(k);
-        A2 = X2*X2';
-        B2 = -Lw* inv(2*eye(k) + nu*P2'*P2);
-        C2 = (X2*V2'*W2 + nu*X2*V2'*P2 + X2*X1'*W1)/(2*eye(k) + nu*P2'*P2)+0.0001*eye(k);        
-        %A2 = X2*X2';
-        %B2 = -Lw* inv(eye(k) + nu*P2'*P2);
-        %C2 = (X2*V2'*W2 + nu*X2*V2'*P2)/(eye(k) + nu*P2'*P2);
-        [Ua2,da2] = eig(A2);
-        [Vb2,db2] = eig(B2);
-        C2t = ((Ua2 +eye(k)*0)\C2)*Vb2;
-        
-        for p = 1:d
-        
-            for q = 1:d
-                W2t(p,q) = C2t(p,q) / ( da2(p,p) + db2(q,q) );
-            end
-            
-        end          
-        %W2 = eye(k);
-        W2 = (Ua2*W2t)/(Vb2);
-        W2 = W;
-        for j = 1:k
-            W2(j,:) = W2(j,:)./(norm(W2(j,:))+eps);
-        end
-        %W2 = eye(k);
-        W2 = W;        
+%         for p = 1:d
+%         
+%             for q = 1:d
+%                 W1t(p,q) = C1t(p,q) / ( da1(p,p) + db1(q,q) );
+%             end
+%             
+%         end
+%         %W1 = eye(k);
+%         W1 = W;
+%         %W1 = (Ua1*W1t) / (Vb1);
+%         for j = 1:k
+%             W1(j,:) = W1(j,:)./(norm(W1(j,:))+eps);
+%         end
+%         W1 = W;
+%         %W1 = eye(k);
+%         A2 = X2*X2';
+%         B2 = -Lw* inv(2*eye(k) + nu*P2'*P2);
+%         C2 = (X2*V2'*W2 + nu*X2*V2'*P2 + X2*X1'*W1)/(2*eye(k) + nu*P2'*P2)+0.0001*eye(k);        
+%         %A2 = X2*X2';
+%         %B2 = -Lw* inv(eye(k) + nu*P2'*P2);
+%         %C2 = (X2*V2'*W2 + nu*X2*V2'*P2)/(eye(k) + nu*P2'*P2);
+%         [Ua2,da2] = eig(A2);
+%         [Vb2,db2] = eig(B2);
+%         C2t = ((Ua2 +eye(k)*0)\C2)*Vb2;
+%         
+%         for p = 1:d
+%         
+%             for q = 1:d
+%                 W2t(p,q) = C2t(p,q) / ( da2(p,p) + db2(q,q) );
+%             end
+%             
+%         end          
+%         %W2 = eye(k);
+%         W2 = (Ua2*W2t)/(Vb2);
+%         W2 = W;
+%         for j = 1:k
+%             W2(j,:) = W2(j,:)./(norm(W2(j,:))+eps);
+%         end
+%         %W2 = eye(k);
+%         W2 = W;        
     end
 
     
     D = zeros(n,n);
     for m = 1:n
     
-        v1 = P1*(W1'*X1(:,m));
+        v1 = P1*(W1'*X12(:,m));
     
         for i = 1:n
-            v2 = P2*(W2'*X2(:,i));
+            v2 = P2*(W2'*X22(:,i));
             D(m,i) = norm(((v1 - A*v2)));
         end
         
