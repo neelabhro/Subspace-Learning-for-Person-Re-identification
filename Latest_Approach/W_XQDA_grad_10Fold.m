@@ -16,6 +16,8 @@ galFea = descriptors(1 : numClass, :);
 probeFea = descriptors(numClass + 1 : end, :);
 clear descriptors
 
+%% Training 
+
     L = 0.000001;
     Lu = 0.05;
     Lv = 0.2;
@@ -30,7 +32,7 @@ clear descriptors
     d = 100;
     k = d;
 
-for i = 1:10    
+%for i = 1:10    
     p = randperm(numClass);
     
     galFea1 = galFea(p(1:numClass/2), : );
@@ -43,13 +45,7 @@ for i = 1:10
     t0 = tic;
 
     trainTime = toc(t0);
-    galFea2 = galFea(p(numClass/2+1 : end), : );
-    probeFea2 = probeFea(p(numClass/2+1 : end), : );
-    
-    TestSet = zeros(632,26960);
-    TestSet(1:316 ,:) = galFea2;
-    TestSet(317: end,:) = probeFea2;
-    
+
     [X , W] = matlabPCA(TrainSet',100);
     %load(pcaFile, 'X');
     %load(pcaFile, 'W');
@@ -62,12 +58,7 @@ for i = 1:10
     %X2 = pca(galFea1');
     
 %    TestPCA = W' * TestSet';
-    TestPCA = W' * TestSet';
-    %TestPCA = W' * TestSet';
-    %X22 = TestPCA(1:15, 1:316);
-    %X12 = TestPCA(1:15, 317:end);
-    X22 = TestPCA(:, 1:316);
-    X12 = TestPCA(:, 317:end);
+
 
     [W_XQDA, M] = XQDA(X1', X2', (1:numClass/2)', (1:numClass/2)');    
 %    X1 = 3.* randi([0, 1], [d,n]);
@@ -103,13 +94,15 @@ for i = 1:10
     %X2 = randi([0, 1], [d,n]);
 
     %W = W(:,1:100);
-%for i = 1:10
+%for i = 1:numFolds
     U  = randi([0, 1], [d,k]);
     V1 = randi([0, 1], [k,n]);
     V2 = randi([0, 1], [k,n]);
     A  = randi([0, 1], [k,k]);
     P1 = randi([0, 1], [k,d]);
+    P1 = eye(k);
     P2 = randi([0, 1], [k,d]);
+    P2 = eye(k);
     W2 = randi([0, 1], [d,k]);
     W2 = W_XQDA';
     %V12 = randi([0, 1], [k,n]);
@@ -141,14 +134,33 @@ for i = 1:10
         end 
         %W=W+.01*eye(100);
     end
-        V12 = inv(((transpose(U) * U) + (nu + beta + Lv) * eye(k))) * ((transpose(U) *W2* X12) + (beta* A * V2) + nu * P1 * W2*X12);
-        %for i = 1:50
-        V22 = inv(((transpose(U) * U) + ( beta * transpose(A) * A) + (nu + Lv) .* eye(k))) * ((transpose(U) *W2* X22) + (beta* transpose(A) * V12) + nu * P2*W2 * X22);    
-        V12 = inv(((transpose(U) * U) + (nu + beta + Lv) * eye(k))) * ((transpose(U) *W2* X12) + (beta* A * V22) + nu * P1 * W2*X12);
-        %end    
-        V22 = inv(((transpose(U) * U) + ( beta * transpose(A) * A) + (nu + Lv) .* eye(k))) * ((transpose(U) *W2* X22) + (beta* transpose(A) * V12) + nu * P2*W2 * X22);    
+    
 
-        D = zeros(n,n);
+%% Testing
+
+    galFea2 = galFea(p(numClass/2+1 : end), : );
+    probeFea2 = probeFea(p(numClass/2+1 : end), : );
+    
+    TestSet = zeros(632,26960);
+    TestSet(1:316 ,:) = galFea2;
+    TestSet(317: end,:) = probeFea2;
+    
+    TestPCA = W' * TestSet';
+    %TestPCA = W' * TestSet';
+    %X22 = TestPCA(1:15, 1:316);
+    %X12 = TestPCA(1:15, 317:end);
+    X22 = TestPCA(:, 1:316);
+    X12 = TestPCA(:, 317:end);    
+    
+    
+    V12 = inv(((transpose(U) * U) + (nu + beta + Lv) * eye(k))) * ((transpose(U) *W2* X12) + (beta* A * V2) + nu * P1 * W2*X12);
+%for i = 1:50
+    V22 = inv(((transpose(U) * U) + ( beta * transpose(A) * A) + (nu + Lv) .* eye(k))) * ((transpose(U) *W2* X22) + (beta* transpose(A) * V12) + nu * P2*W2 * X22);    
+    V12 = inv(((transpose(U) * U) + (nu + beta + Lv) * eye(k))) * ((transpose(U) *W2* X12) + (beta* A * V22) + nu * P1 * W2*X12);
+%end    
+    V22 = inv(((transpose(U) * U) + ( beta * transpose(A) * A) + (nu + Lv) .* eye(k))) * ((transpose(U) *W2* X22) + (beta* transpose(A) * V12) + nu * P2*W2 * X22);    
+
+    D = zeros(n,n);
     for m = 1:n
     
         %v1 = P1*(X12(:,m));
@@ -164,4 +176,4 @@ for i = 1:10
     end
     CMC(D,100);
     hold on;
-end    
+%end    
