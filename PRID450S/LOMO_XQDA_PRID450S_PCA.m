@@ -1,4 +1,4 @@
-%CSPL Paper Replication LOMO PRID450S
+%Ours + XQDA + LOMO PRID450S
 %Neelabhro Roy
 %IIIT-Delhi
 
@@ -138,19 +138,26 @@ clear descriptors450ScamA
         end 
         %W=W+.01*eye(100);
     end
+        V12 = inv(((transpose(U) * U) + (nu + beta + Lv) * eye(k))) * ((transpose(U) *W2* X12) + (beta* A * V2) + nu * P1 * W2*X12);
+        %for i = 1:50
+            
+            V22 = inv(((transpose(U) * U) + ( beta * transpose(A) * A) + (nu + Lv) .* eye(k))) * ((transpose(U) *W2* X22) + (beta* transpose(A) * V12) + nu * P2*W2 * X22);    
+            V12 = inv(((transpose(U) * U) + (nu + beta + Lv) * eye(k))) * ((transpose(U) *W2* X12) + (beta* A * V22) + nu * P1 * W2*X12);
+        %end    
+        V22 = inv(((transpose(U) * U) + ( beta * transpose(A) * A) + (nu + Lv) .* eye(k))) * ((transpose(U) *W2* X22) + (beta* transpose(A) * V12) + nu * P2*W2 * X22);    
 
-
-    
-    D = zeros(n,n);
+        D = zeros(n,n);
     for m = 1:n
     
-        v1 = P1*(X12(:,m));
-    
+        %v1 = P1*(X12(:,m));
+        %v1 = (W2*X1(:,m));
+        v1 = V12(:,m);
         for i = 1:n
-            v2 = P2*(X22(:,i));
-            D(m,i) = norm(((v1 - A*v2)));
+            %v2 = P2*(X22(:,i));
+            %v2 = (W2*X2(:,i));
+            v2 = V22(:,i);
+            D(m,i) = norm(((v1 -A* v2)));
         end
-        
+
     end
-    
-CMC(D,100);
+    CMC(D,100);
