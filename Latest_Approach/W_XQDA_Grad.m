@@ -20,15 +20,15 @@ galFea = descriptors(1 : numClass, :);
 probeFea = descriptors(numClass + 1 : end, :);
 clear descriptors
 
-    L = 0.00001;
-    Lu = 0.05;
-    Lv = 0.2;
-    La = 0.2;
-    Lp = 0.2;
+    L = 0.000000001;
+    Lu = 0.5;
+    Lv = 2;
+    La = 2;
+    Lp = 2;
     Lw = 0.01;
 
     nu =0;
-    beta = 100;
+    beta = 200;
 
     n = 316;
     d = 100;
@@ -36,8 +36,8 @@ clear descriptors
 
     p = randperm(numClass);
     
-    galFea1 = galFea(p(1:numClass/2), : );
-    probeFea1 = probeFea(p(1:numClass/2), : );
+    galFea1 = galFea(1:numClass/2, : );
+    probeFea1 = probeFea(1:numClass/2, : );
 
     TrainSet = zeros(632,26960);
     TrainSet(1:316 ,:) = galFea1;
@@ -59,12 +59,21 @@ clear descriptors
     
     X2 = X(:, 1:316);
     X1 = X(:, 317:end);
+    %X2 = X(:, 1:100);
+    %X1 = X(:, 317:416);
+    %X2 = X(:, 1:5);
+    %X1 = X(:, 317:321);
     %X1 = pca(probeFea1');
     %X2 = pca(galFea1');
     
     TestPCA = W' * TestSet';
     X22 = TestPCA(:, 1:316);
     X12 = TestPCA(:, 317:end);
+    
+    %X22 = TestPCA(:, 1:100);
+    %X12 = TestPCA(:, 317:416);
+    %X22 = TestPCA(:, 1:5);
+    %X12 = TestPCA(:, 317:321);
 
     
     
@@ -82,21 +91,23 @@ clear descriptors
     % X(dxn) = U(dxk)*V(kxn)
     %X1 = randi([0, 1], [d,n]);
     %X2 = randi([0, 1], [d,n]);
-for i = 1:5
-    %X1 = 3.* randi([0, 1], [d,n]);
-    %X2 = X1 + 0;
-    %X1 = X1 - 0;
+%for i = 1:5
+    X1 = 1.* randi([0, 1], [d,n]);
+    X2 = X1 + 1;
+    X1 = X1 - 1;
 
     load(wFile, 'W_XQDA');
-    %X12 = 3.* randi([0, 1], [d,n]);
-    %X22 = X12 + 0;
-    %X12 = X12 - 0;
+    X12 = 1.* randi([0, 1], [d,n]);
+    X22 = X12 + 1;
+    X12 = X12 - 1;
     U  = randi([0, 1], [d,k]);
     V1 = randi([0, 1], [k,n]);
     V2 = randi([0, 1], [k,n]);
     A  = randi([0, 1], [k,k]);
     P1 = randi([0, 1], [k,d]);
+    P1 = eye(k);
     P2 = randi([0, 1], [k,d]);
+    P2 = eye(k);
     W2 = randi([0, 1], [d,k]);
     W2 = W_XQDA';
     %V12 = randi([0, 1], [k,n]);
@@ -105,7 +116,7 @@ for i = 1:5
 
     
 %% Main algorithm
-    for i = 1:1500
+    for i = 1:500
         U  = (( W2*X1 * transpose(V1)) + ( W2*X2 * transpose(V2))) .* inv((( V1 * transpose(V1)) + ( V2 * transpose(V2)) + (Lu*eye(k))));
         V1 = inv(((transpose(U) * U) + (nu + beta + Lv) * eye(k))) * ((transpose(U) *W2* X1) + (beta* A * V2) + nu * P1 * W2*X1);
         V2 = inv(((transpose(U) * U) + ( beta * transpose(A) * A) + (nu + Lv) .* eye(k))) * ((transpose(U) *W2* X2) + (beta* transpose(A) * V1) + nu * P2*W2 * X2);
@@ -128,18 +139,18 @@ for i = 1:5
         end 
         %W=W+.01*eye(100);
     end
-        V12 = inv(((transpose(U) * U) + (nu + beta + Lv) * eye(k))) * ((transpose(U) *W2* X12) + (beta* A * V2) + nu * P1 * W2*X12);
-        %for i = 1:50
-        V22 = inv(((transpose(U) * U) + ( beta * transpose(A) * A) + (nu + Lv) .* eye(k))) * ((transpose(U) *W2* X22) + (beta* transpose(A) * V12) + nu * P2*W2 * X22);    
-        V12 = inv(((transpose(U) * U) + (nu + beta + Lv) * eye(k))) * ((transpose(U) *W2* X12) + (beta* A * V22) + nu * P1 * W2*X12);
-        %end    
-        V22 = inv(((transpose(U) * U) + ( beta * transpose(A) * A) + (nu + Lv) .* eye(k))) * ((transpose(U) *W2* X22) + (beta* transpose(A) * V12) + nu * P2*W2 * X22);    
-
-        D = zeros(n,n);
+    
+    
+%% Testing    
+    
+    D = zeros(n,n);
     for m = 1:n
     
-        %v1 = P1*(X12(:,m));
-        %v1 = (W2*X1(:,m));
+        V12 = inv(((transpose(U) * U) + (nu + beta + Lv) * eye(k))) * ((transpose(U) *W2* X12) + (beta* A * V2) + nu * P1 * W2*X12);
+        V22 = inv(((transpose(U) * U) + ( beta * transpose(A) * A) + (nu + Lv) .* eye(k))) * ((transpose(U) *W2* X22) + (beta* transpose(A) * V12) + nu * P2*W2 * X22);    
+        V12 = inv(((transpose(U) * U) + (nu + beta + Lv) * eye(k))) * ((transpose(U) *W2* X12) + (beta* A * V22) + nu * P1 * W2*X12);    
+        V22 = inv(((transpose(U) * U) + ( beta * transpose(A) * A) + (nu + Lv) .* eye(k))) * ((transpose(U) *W2* X22) + (beta* transpose(A) * V12) + nu * P2*W2 * X22);    
+
         v1 = V12(:,m);
         for i = 1:n
             %v2 = P2*(X22(:,i));
@@ -151,4 +162,4 @@ for i = 1:5
     end
     CMC(D,100);
     hold on;
-end    
+%end    
