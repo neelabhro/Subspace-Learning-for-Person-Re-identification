@@ -92,14 +92,14 @@ clear descriptors
     %X1 = randi([0, 1], [d,n]);
     %X2 = randi([0, 1], [d,n]);
 %for i = 1:5
-    X1 = 1.* randi([0, 1], [d,n]);
-    X2 = X1 + 1;
-    X1 = X1 - 1;
+    %X1 = 1.* randi([0, 1], [d,n]);
+    %X2 = X1 + 1;
+    %X1 = X1 - 1;
 
     load(wFile, 'W_XQDA');
-    X12 = 1.* randi([0, 1], [d,n]);
-    X22 = X12 + 1;
-    X12 = X12 - 1;
+    %X12 = 1.* randi([0, 1], [d,n]);
+    %X22 = X12 + 1;
+    %X12 = X12 - 1;
     U  = randi([0, 1], [d,k]);
     V1 = randi([0, 1], [k,n]);
     V2 = randi([0, 1], [k,n]);
@@ -161,5 +161,48 @@ clear descriptors
 
     end
     CMC(D,100);
-    hold on;
+    %hold on;
 %end    
+    figure;
+    %tsne(X1, (1:numClass/2)',2,100,30);
+    
+    Y1 = tsne(X1(:,1:10)');
+    Y2 = tsne(X2(:,1:10)');
+    subplot(3,2,1)
+    gscatter(Y1,Y2);
+    title('Train data X1,X2');
+    %figure;
+    
+    
+    Y5 = tsne((W_XQDA'*X1)');
+    Y6 = tsne((W_XQDA'*X2)');
+    subplot(3,2,2)
+    gscatter(Y5,Y6);  
+    title('W_XQDA_T*X1,X2');
+    %figure;
+    
+    
+    Y3 = tsne((W2*X1)');
+    Y4 = tsne((W2*X2)');
+    subplot(3,2,3)
+    gscatter(Y3,Y4);
+    title('Learnt_W X1,X2');
+    %figure;
+    
+    Y7 = tsne((X12)');
+    Y8 = tsne((X22)');
+    subplot(3,2,4)
+    gscatter(Y7,Y8);
+    title('Test data X12,X22');
+    
+    Y9 = tsne((W_XQDA'*X12)');
+    Y10 = tsne((W_XQDA'*X22)');
+    subplot(3,2,5)
+    gscatter(Y9,Y10);
+    title('W_XQDA_T*X12,X22');
+    
+    Y11 = tsne((W2*X12)');
+    Y12 = tsne((W2*X22)');
+    subplot(3,2,6)
+    gscatter(Y11,Y12);
+    title('Learnt_W X12,X22');
