@@ -24,7 +24,7 @@ numRanks = 100;
 load(pcaFile, 'X1','X2','X22','X12');
 
 
-    L = 0.00001;
+    L = 0.000001;
     Lu = 0.05;
     Lv = 0.2;
     La = 0.2;
@@ -32,7 +32,7 @@ load(pcaFile, 'X1','X2','X22','X12');
     Lw = 0.1;
 
     nu = 0;
-    beta = 100;
+    beta = 200;
 
     n = 225;
     d = 100;
@@ -111,6 +111,7 @@ load(pcaFile, 'X1','X2','X22','X12');
     P1 = eye(k);
     P2 = randi([0, 1], [k,d]);
     P2 = eye(k);
+    Wx = W_XQDA';
     W2 = W_XQDA';
 
 
@@ -160,27 +161,38 @@ load(pcaFile, 'X1','X2','X22','X12');
     CMC(D,100);
     
     figure;
-    %Y1 = tsne(X1(:,1:10)');
-    %Y2 = tsne(X2(:,1:10)');
-    %subplot(3,2,1)
-    %scatter(Y1(:,1),Y1(:,2));
-    %title('Train data X1,X2');
-    Y1 = tsne(V1(:,1:5)');
-    %gscatter(Y1(:,1),Y1(:,2));
-    %hold on;
-    %figure;
-    Y2 = tsne((A*V2(:,1:5))');
-    Y5=[Y1;Y2];
-    G=[1,2,3,4,5,1,2,3,4,5];
-    gscatter(Y5(:,1),Y5(:,2),G);
+    
+for i = 1:10
+    x = 5;  %Number of Identities to check
+    p1 = randperm(225);
+    
+    Y1 = tsne(X1(:,p1(1:x))');
+    Y2 = tsne((X2(:,p1(1:x)))');
+    Y3=[Y1;Y2];
+    G=[1:2];
+    scatter(Y3(1,1),Y3(1,2),50,G(1),'filled');
+    hold on;
+    scatter(Y3(6,1),Y3(6,2),50,G(2),'filled');
+    hold on;
+    
+    
+    Y4 = tsne(((Wx)*(X1(:,p1(1:x))))');
+    Y5 = tsne(((Wx)*(X2(:,p1(1:x))))');
+    Y6=[Y4;Y5];
+    G=[3:4];
+    scatter(Y6(1,1),Y6(1,2),50,G(1),'filled');
+    hold on;
+    scatter(Y6(6,1),Y6(6,2),50,G(2),'filled');
+    hold on;
+    
+    Y7 = tsne(((W2)*(X1(:,p1(1:x))))');
+    Y8 = tsne(((W2)*(X2(:,p1(1:x))))');
+    Y9=[Y7;Y8];
+    G=[5:6];
+    scatter(Y9(1,1),Y9(1,2),50,G(1),'filled');
+    hold on;
+    scatter(Y9(6,1),Y9(6,2),50,G(2),'filled');
+    legend('X1','X2','W_{XQDA} X1','W_{XQDA} X2','W2 X1','W2 X2');
+    
     figure;
-    
-    
-    Y3 = tsne((V12(:,1:5))');
-    %gscatter(Y3(:,1),Y3(:,2));
-    %hold on;
-    %figure;
-    Y4 = tsne((A*V22(:,1:5))');
-    %gscatter(Y4(:,1),Y4(:,2));
-    Y6=[Y3;Y4];
-    gscatter(Y6(:,1),Y6(:,2),G);
+end
