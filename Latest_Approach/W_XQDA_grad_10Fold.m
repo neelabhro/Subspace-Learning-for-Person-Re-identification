@@ -7,7 +7,7 @@ close all;
 
 feaFile = 'viper_lomo.mat';
 numClass = 632;
-numFolds = 10;
+numFolds = 2;
 numRanks = 100;
 
 %% load the extracted LOMO features
@@ -16,6 +16,11 @@ galFea = descriptors(1 : numClass, :);
 probeFea = descriptors(numClass + 1 : end, :);
 clear descriptors
 
+
+%% evaluate
+cms = zeros(numFolds, numRanks);
+
+for nf = 1 : numFolds
 %% Training 
 
     L = 0.000001;
@@ -153,27 +158,35 @@ clear descriptors
     X12 = TestPCA(:, 317:end);    
     
     
-    V12 = inv(((transpose(U) * U) + (nu + beta + Lv) * eye(k))) * ((transpose(U) *W2* X12) + (beta* A * V2) + nu * P1 * W2*X12);
-%for i = 1:50
-    V22 = inv(((transpose(U) * U) + ( beta * transpose(A) * A) + (nu + Lv) .* eye(k))) * ((transpose(U) *W2* X22) + (beta* transpose(A) * V12) + nu * P2*W2 * X22);    
-    V12 = inv(((transpose(U) * U) + (nu + beta + Lv) * eye(k))) * ((transpose(U) *W2* X12) + (beta* A * V22) + nu * P1 * W2*X12);
-%end    
-    V22 = inv(((transpose(U) * U) + ( beta * transpose(A) * A) + (nu + Lv) .* eye(k))) * ((transpose(U) *W2* X22) + (beta* transpose(A) * V12) + nu * P2*W2 * X22);    
 
     D = zeros(n,n);
     for m = 1:n
     
-        %v1 = P1*(X12(:,m));
-        %v1 = (W2*X1(:,m));
+        V12 = inv(((transpose(U) * U) + (nu + beta + Lv) * eye(k))) * ((transpose(U) *W2* X12) + (beta* A * V2) + nu * P1 * W2*X12);
+        V22 = inv(((transpose(U) * U) + ( beta * transpose(A) * A) + (nu + Lv) .* eye(k))) * ((transpose(U) *W2* X22) + (beta* transpose(A) * V12) + nu * P2*W2 * X22);    
+        V12 = inv(((transpose(U) * U) + (nu + beta + Lv) * eye(k))) * ((transpose(U) *W2* X12) + (beta* A * V22) + nu * P1 * W2*X12);    
+        V22 = inv(((transpose(U) * U) + ( beta * transpose(A) * A) + (nu + Lv) .* eye(k))) * ((transpose(U) *W2* X22) + (beta* transpose(A) * V12) + nu * P2*W2 * X22);    
+
         v1 = V12(:,m);
         for i = 1:n
-            %v2 = P2*(X22(:,i));
-            %v2 = (W2*X2(:,i));
             v2 = V22(:,i);
             D(m,i) = norm(((v1 -A* v2)));
         end
 
     end
-    CMC(D,100);
-    hold on;
-%end    
+    
+    
+    cms(nf,:) = EvalCMC( -D,  1 : numClass / 2, 1 : numClass / 2, numRanks );
+    clear dist
+    
+    fprintf(' Rank1,  Rank5, Rank10, Rank15, Rank20\n');
+    fprintf('%5.2f%%, %5.2f%%, %5.2f%%, %5.2f%%, %5.2f%%\n\n', cms(nf,[1,5,10,15,20]) * 100);
+end
+
+meanCms = mean(cms);
+plot(1 : numRanks, meanCms);
+
+fprintf('The average performance:\n');
+fprintf(' Rank1,  Rank5, Rank10, Rank15, Rank20\n');
+fprintf('%5.2f%%, %5.2f%%, %5.2f%%, %5.2f%%, %5.2f%%\n\n', meanCms([1,5,10,15,20]) * 100);
+    
