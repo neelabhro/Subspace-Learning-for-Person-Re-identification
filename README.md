@@ -4,7 +4,7 @@
 ![](index.jpeg)
 
 
-### Dataset: VIPeR (Left) + QUML (Right)
+### Dataset: VIPeR (Left) + PRID450S (Right)
 ![](index2.jpeg)
 
 
