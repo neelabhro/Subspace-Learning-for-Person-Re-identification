@@ -20,7 +20,7 @@ probeFea = descriptors(numClass + 1 : end, :);
 clear descriptors
 
     Lu = 0.05*1;
-    L = 0.000000001;
+    L = 0.00000000001;
     Lv = 0.2*1;
     La = 0.2*1;
     Lp = 0.2*1;
@@ -96,7 +96,7 @@ clear descriptors
     % X(dxn) = U(dxk)*V(kxn)
     %X1 = randi([0, 1], [d,n]);
     %X2 = randi([0, 1], [d,n]);
-    std = 100;
+    std = 9;
     K1 = zeros(n,n);
     for m = 1:n
         xi = X1(:,m);
@@ -125,27 +125,31 @@ clear descriptors
     P1 = randi([0, 1], [k,d]);
     P2 = randi([0, 1], [k,d]);
     W2 = eye(k);
-    Z = zeros(n,d);
+    Z = randi([0, 1], [n,d]);
+    %Z = zeros(n,d);
 
 
 
 %% Main algorithm
-    for i = 1:500
+    for i = 1:3000
         U  = (( Z'*K1 * transpose(V1)) + ( Z'*K2 * transpose(V2)))/((( V1 * transpose(V1)) + ( V2 * transpose(V2)) + (Lu*eye(k))));
         V1 = (((transpose(U) * U) + (nu + beta + Lv) * eye(k))) \ ((transpose(U) *Z'*K1) + (beta* A * V2) + nu * P1 * Z'*K1);
         V2 = (((transpose(U) * U) + ( beta * transpose(A) * A) + (nu + Lv) .* eye(k))) \ ((transpose(U)* Z'*K2) + (beta* transpose(A) * V1) + nu * P2* Z'*K2);
         P1 = (V1 * transpose(Z'*K1)) / ((Z'*K1 * transpose(Z'*K1)) + (Lp/nu)*eye(k));
         P2 = (V2 * transpose(Z'*K2)) /((Z'*K2 * transpose(Z'*K2)) + (Lp/nu)*eye(k));
         A  = (V1 * transpose(V2)) /((V2 * transpose(V2)) + (La/beta)*eye(k));
+        %Z  = (K1*K1' + K2*K2' + K1) \ (K1*V1'*U' + K2*V2'*U');
         %W2 = inv((2*X1*X1' + 2*X2*X2' + Lw*eye(k)))*(X1*V1'*U' + X2*V2'*U' + X1*V1'*P1 + X2*V2'*P2);
         %W2 = inv((4*X1*X1' + 4*X2*X2' + Lw*eye(k) -X1*X2' -X2*X1'))*(X1*V1'*U' + X2*V2'*U' + X1*V1'*P1 + X2*V2'*P2);
         %W2 = W2';
 
-        %for j = 1:50           
+        for j = 1:300           
         %    Vw = 4*W2'*X1*X1' + 4*W2'*X2*X2' - 2*(X1*V1')*U'  - 2*(X2*V2')*U' - 2*nu*X1*V1'*P1' - 2*nu*X2*V2'*P2' + 2*nu*P1'*P1*W2'*X1*X1' + 2*nu*P2'*P2*W2'*X2*X2' + 2*Lw*W2' - X1*X2' - X2*X1';
-        %    W2 = W2 - L*Vw;           
+        %    W2 = W2 - L*Vw;
+             Vz = 2*(K1*K1')*Z -2*(K1*V1'*U' + K2*V2'*U') + 2*(K2*K2')*Z + 2*K1*Z -2*(K1*V1'*P1' + K2*V2'*P2') + 2*(K2*K2')*Z*(P2'*P2) + 2*(K1*K1')*Z*(P1'*P1);
+             Z = Z - L*Vz;
             %W=W./norm(W);
-        %end 
+        end 
         %W2 = W2';
         
     end
@@ -176,9 +180,9 @@ clear descriptors
         C22(:,m) = P1*Z'*C2;
     end 
     
-    D = 999*ones(n,n);    
-    % Final Distance computattion
     
+%Final Distance computation
+    D = 999*ones(n,n);    
     for m = 1:n
         xi0 = C12(:,m);
         for i = 1:n
