@@ -20,7 +20,7 @@ probeFea = descriptors(numClass + 1 : end, :);
 clear descriptors
 
     Lu = 0.05*1;
-    L = 0.00000000001;
+    L = 10^-13;
     Lv = 0.2*1;
     La = 0.2*1;
     Lp = 0.2*1;
@@ -56,14 +56,14 @@ clear descriptors
     load(pcaFile, 'X');
     load(pcaFile, 'W');
     
-    X2 = X(:, 1:316);
-    X1 = X(:, 317:end);
+    X1 = X(:, 1:316);
+    X2 = X(:, 317:end);
     %X1 = pca(probeFea1');
     %X2 = pca(galFea1');
     
     TestPCA = W' * TestSet';
-    X22 = TestPCA(:, 1:316);
-    X12 = TestPCA(:, 317:end);
+    X12 = TestPCA(:, 1:316);
+    X22 = TestPCA(:, 317:end);
 
     
     %X1 = 3.* randi([0, 1], [d,n]);
@@ -96,13 +96,14 @@ clear descriptors
     % X(dxn) = U(dxk)*V(kxn)
     %X1 = randi([0, 1], [d,n]);
     %X2 = randi([0, 1], [d,n]);
-    std = 9;
+    std = 1;
     K1 = zeros(n,n);
     for m = 1:n
         xi = X1(:,m);
         for i = 1:n
             xj = X1(:,i);
-            K1(m,i) = exp(-(((norm(xi - xj))^2)/std));
+            %K1(m,i) = exp(-(((norm(xi - xj))^2)/std));
+            K1(m,i) = xi'*xj;
         end
     end    
     
@@ -113,7 +114,8 @@ clear descriptors
         xi = X1(:,m);
         for i = 1:n
             xj = X2(:,i);
-            K2(m,i) = exp(-(((norm(xi - xj))^2)/std));
+            %K2(m,i) = exp(-(((norm(xi - xj))^2)/std));
+            K2(m,i) = xi'*xj;
         end
     end    
     
@@ -125,13 +127,14 @@ clear descriptors
     P1 = randi([0, 1], [k,d]);
     P2 = randi([0, 1], [k,d]);
     W2 = eye(k);
-    Z = randi([0, 1], [n,d]);
+    %Z = randi([0, 1], [n,d]);
+    Z = eye(n,d);
     %Z = zeros(n,d);
 
 
 
 %% Main algorithm
-    for i = 1:3000
+    for i = 1:1500
         U  = (( Z'*K1 * transpose(V1)) + ( Z'*K2 * transpose(V2)))/((( V1 * transpose(V1)) + ( V2 * transpose(V2)) + (Lu*eye(k))));
         V1 = (((transpose(U) * U) + (nu + beta + Lv) * eye(k))) \ ((transpose(U) *Z'*K1) + (beta* A * V2) + nu * P1 * Z'*K1);
         V2 = (((transpose(U) * U) + ( beta * transpose(A) * A) + (nu + Lv) .* eye(k))) \ ((transpose(U)* Z'*K2) + (beta* transpose(A) * V1) + nu * P2* Z'*K2);
@@ -143,13 +146,13 @@ clear descriptors
         %W2 = inv((4*X1*X1' + 4*X2*X2' + Lw*eye(k) -X1*X2' -X2*X1'))*(X1*V1'*U' + X2*V2'*U' + X1*V1'*P1 + X2*V2'*P2);
         %W2 = W2';
 
-        for j = 1:300           
+        %for j = 1:300           
         %    Vw = 4*W2'*X1*X1' + 4*W2'*X2*X2' - 2*(X1*V1')*U'  - 2*(X2*V2')*U' - 2*nu*X1*V1'*P1' - 2*nu*X2*V2'*P2' + 2*nu*P1'*P1*W2'*X1*X1' + 2*nu*P2'*P2*W2'*X2*X2' + 2*Lw*W2' - X1*X2' - X2*X1';
         %    W2 = W2 - L*Vw;
-             Vz = 2*(K1*K1')*Z -2*(K1*V1'*U' + K2*V2'*U') + 2*(K2*K2')*Z + 2*K1*Z -2*(K1*V1'*P1' + K2*V2'*P2') + 2*(K2*K2')*Z*(P2'*P2) + 2*(K1*K1')*Z*(P1'*P1);
-             Z = Z - L*Vz;
+        %     Vz = 2*(K1*K1')*Z -2*(K1*V1'*U' + K2*V2'*U') + 2*(K2*K2')*Z + 2*K1*Z -2*(K1*V1'*P1' + K2*V2'*P2') + 2*(K2*K2')*Z*(P2'*P2) + 2*(K1*K1')*Z*(P1'*P1);
+        %     Z = Z - L*Vz;
             %W=W./norm(W);
-        end 
+        %end 
         %W2 = W2';
         
     end
@@ -161,7 +164,8 @@ clear descriptors
         xi = X12(:,m);
         for i = 1:n
             xj = X1(:,i);
-            C1(i) = exp(-(((norm(xi - xj))^2)/std));
+            %C1(i) = exp(-(((norm(xi - xj))^2)/std));
+            C1(i) = xi'*xj;
             
         end
         C12(:,m) = P1*Z'*C1;
@@ -174,10 +178,10 @@ clear descriptors
         xi = X22(:,m);
         for i = 1:n
             xj = X1(:,i);
-            C2(i) = exp(-(((norm(xi - xj))^2)/std));
-            
+            %C2(i) = exp(-(((norm(xi - xj))^2)/std));
+            C2(i) = xi'*xj;
         end
-        C22(:,m) = P1*Z'*C2;
+        C22(:,m) = P2*Z'*C2;
     end 
     
     
