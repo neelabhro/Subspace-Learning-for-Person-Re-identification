@@ -24,6 +24,7 @@ p = randperm(numClass);
 
 galFea1 = galFea(:, (1:125));
 galFea2 = galFea(:, (126:250));
+galFea3 = gallery(:,1:775);
 
 probeFea1 = probeFea(:, (1:125));
 probeFea2 = probeFea(:, (126:250));
@@ -55,4 +56,4 @@ probeFea2 = probeFea(:, (126:250));
     TestSet = zeros(250,26960);
     TestSet(1:125 ,:) = galFea2';
     TestSet(126: end,:) = probeFea2';
-    %[X ,W] = matlabPCA(TrainSet',100);
+    [X ,W] = matlabPCA(TrainSet',100);
