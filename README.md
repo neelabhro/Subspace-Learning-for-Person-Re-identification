@@ -13,6 +13,4 @@
 
 
 
-### Algorithm 1: LOMO + Subspace Learning ( Dataset used: VIPeR )
-![](viper.png)
 
